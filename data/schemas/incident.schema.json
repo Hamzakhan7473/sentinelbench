@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hamzakhan7473/sentinelbench/data/schemas/incident.schema.json",
+  "title": "SentinelBench Incident",
+  "description": "Canonical schema for a single incident/scenario record used by SentinelBench scenarios and scorers. An incident is one unit of evaluation: a bundle of raw events, ground-truth labels, and the evidence-grounded expectations an agent should be scored against.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "incident_id",
+    "event_source",
+    "raw_events",
+    "label",
+    "severity",
+    "attack_techniques",
+    "supporting_event_ids",
+    "expected_investigation_steps",
+    "expected_containment_actions"
+  ],
+  "properties": {
+    "incident_id": {
+      "type": "string",
+      "description": "Globally unique identifier for this incident within SentinelBench. Recommended format: '<dataset-slug>-<zero-padded-number>', e.g. 'sb-000123'.",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "minLength": 3,
+      "examples": ["sb-000123"]
+    },
+    "schema_version": {
+      "type": "string",
+      "description": "Version of this schema the record conforms to (semver). Defaults to the current schema version if omitted.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "default": "1.0.0"
+    },
+    "event_source": {
+      "type": "object",
+      "description": "Provenance of the raw events: where they came from and how they were collected or generated.",
+      "additionalProperties": false,
+      "required": ["type", "name"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Category of source system.",
+          "enum": [
+            "edr",
+            "siem",
+            "network",
+            "cloud_audit_log",
+            "identity_provider",
+            "endpoint_log",
+            "firewall",
+            "synthetic",
+            "other"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name of the specific source/product/dataset, e.g. 'Zeek conn.log', 'AWS CloudTrail', 'synthetic-generator-v1'."
+        },
+        "license": {
+          "type": "string",
+          "description": "License or terms under which this data is redistributed. Required for any non-synthetic source per data/README.md (approved public datasets only)."
+        },
+        "provenance_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Link documenting where this data came from (dataset page, paper, repo)."
+        }
+      }
+    },
+    "raw_events": {
+      "type": "array",
+      "description": "Ordered list of raw events that make up the evidence for this incident. Kept intentionally loose in shape since source formats vary (EDR telemetry, syslog, CloudTrail JSON, etc.) — each event must at least carry an id and timestamp so it can be referenced from supporting_event_ids and investigation/containment steps.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["event_id", "timestamp"],
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "description": "Identifier for this event, unique within the incident. Referenced by supporting_event_ids and by steps below."
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp of the event."
+          },
+          "raw": {
+            "description": "The original event payload, kept as close to source format as practical (object or string).",
+            "type": ["object", "string"]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "label": {
+      "type": "string",
+      "description": "Ground-truth classification of this incident.",
+      "enum": ["benign", "malicious"]
+    },
+    "severity": {
+      "type": "string",
+      "description": "Ground-truth severity, aligned to a standard 5-level scale. Meaningful even for benign incidents that resemble malicious activity closely enough to warrant analyst attention (e.g. 'informational').",
+      "enum": ["informational", "low", "medium", "high", "critical"]
+    },
+    "attack_techniques": {
+      "type": "array",
+      "description": "MITRE ATT&CK techniques (and optionally sub-techniques) relevant to this incident. Empty array is valid for benign incidents with no adversarial technique involved.",
+      "items": {
+        "type": "object",
+        "required": ["technique_id", "technique_name"],
+        "additionalProperties": false,
+        "properties": {
+          "technique_id": {
+            "type": "string",
+            "description": "ATT&CK technique or sub-technique ID, e.g. 'T1059' or 'T1059.001'.",
+            "pattern": "^T\\d{4}(\\.\\d{3})?$"
+          },
+          "technique_name": {
+            "type": "string",
+            "description": "Human-readable ATT&CK technique name, e.g. 'Command and Scripting Interpreter'."
+          },
+          "tactic": {
+            "type": "string",
+            "description": "ATT&CK tactic this technique maps to in this incident, e.g. 'execution', 'persistence'."
+          }
+        }
+      },
+      "default": []
+    },
+    "supporting_event_ids": {
+      "type": "array",
+      "description": "event_id values from raw_events that constitute the evidence trail for the label/severity/technique determination. Every id here must correspond to an entry in raw_events.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "expected_investigation_steps": {
+      "type": "array",
+      "description": "Ordered, evidence-grounded steps a competent analyst/agent should take to investigate this incident. Used by scorers to evaluate whether an agent's investigation was correct and sufficiently grounded in the raw events.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["step", "rationale"],
+        "additionalProperties": false,
+        "properties": {
+          "step": {
+            "type": "string",
+            "description": "Concise description of the investigative action, e.g. 'Pivot on parent process ID to identify the spawning process.'"
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Why this step is expected, tying it back to the evidence."
+          },
+          "supporting_event_ids": {
+            "type": "array",
+            "description": "Subset of raw_events/event_ids this step relies on, if applicable.",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "expected_containment_actions": {
+      "type": "array",
+      "description": "Expected containment/remediation actions once the incident is confirmed. For benign incidents, this may reasonably be an empty array (i.e. the correct action is to take no containment action).",
+      "items": {
+        "type": "object",
+        "required": ["action", "rationale"],
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Concise description of the containment/remediation action, e.g. 'Isolate host from network' or 'Revoke session tokens for compromised identity.'"
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Why this action is appropriate given the confirmed incident."
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["immediate", "high", "normal", "low"],
+            "description": "Urgency of this action relative to other containment actions."
+          }
+        }
+      },
+      "default": []
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional free-form metadata (author, creation date, tags, dataset split, etc.) that doesn't affect scoring.",
+      "additionalProperties": true
+    }
+  }
+}
