@@ -5,17 +5,22 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sentinelbench"
 version = "0.1.0"
-description = "Benchmarking framework for security-relevant AI systems"
+description = "Benchmark for evaluating evidence-grounded AI agents in security operations"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "SentinelBench Contributors" }]
-dependencies = []
+dependencies = [
+    "jsonschema>=4.22",
+]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
 ]
+
+[project.scripts]
+sentinelbench = "sentinelbench.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

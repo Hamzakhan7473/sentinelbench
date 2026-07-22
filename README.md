@@ -4,18 +4,18 @@ An open-source benchmark for evaluating evidence-grounded AI agents in security 
 
 ## Overview
 
-SentinelBench provides datasets, scorers, and runners for measuring how well agents ground decisions in evidence under security-operations scenarios. This repository currently contains the project skeleton only — approved public datasets will be added later.
+SentinelBench provides datasets, scorers, and runners for measuring how well agents ground decisions in evidence under security-operations scenarios.
 
 ## Status
 
-**Early scaffolding.** Structure and documentation placeholders are in place. No evaluation datasets or scoring implementations have been shipped yet.
+**Core evaluation loop is runnable offline** with a mock provider (no API keys). Incident schema lives under `data/schemas/`. SOC scenarios and cloud providers are still in progress.
 
 ## Repository layout
 
 ```
 sentinelbench/
 ├── docs/           # Architecture, methodology, and threat model
-├── data/           # Scenarios and schemas (datasets added later)
+├── data/           # Scenarios and schemas
 ├── sentinelbench/  # Python package (models, scorers, datasets, runners)
 ├── tests/
 ├── examples/
@@ -25,11 +25,21 @@ sentinelbench/
 ## Getting started
 
 ```bash
-# Install in editable mode (once dependencies are defined)
-pip install -e .
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+
+# Run unit tests (mock provider, no API keys)
+pytest
+
+# Evaluate the example incident
+python examples/run_mock_eval.py
+
+# Or via CLI
+sentinelbench --incident data/schemas/examples/incident.example.json --provider mock
 ```
 
-Copy `.env.example` to `.env` and fill in any required values before running evaluations.
+Copy `.env.example` to `.env` before wiring real model providers.
 
 ## Documentation
 
@@ -37,6 +47,7 @@ Copy `.env.example` to `.env` and fill in any required values before running eva
 - [Methodology](docs/methodology.md)
 - [Threat model](docs/threat-model.md)
 - [Data guidelines](data/README.md)
+- [Incident schema](data/schemas/README.md)
 
 ## Contributing
 
