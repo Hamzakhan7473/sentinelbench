@@ -1,28 +1,29 @@
-"""Optional cloud provider stubs (implement when API keys are configured)."""
+"""Optional OpenAI provider stub."""
 
 from __future__ import annotations
 
+import os
 from typing import Any, Mapping
 
 from sentinelbench.models.base import ModelProvider
 from sentinelbench.types import AgentPrediction
 
 
-class _UnimplementedProvider(ModelProvider):
-    def investigate(self, incident: Mapping[str, Any]) -> AgentPrediction:
-        raise NotImplementedError(
-            f"{self.name} provider is not implemented yet. "
-            "Use MockProvider for offline evaluation, or contribute an adapter."
-        )
+class OpenAIProvider(ModelProvider):
+    """OpenAI adapter placeholder. Full implementation tracked in issue #11."""
 
-
-class OpenAIProvider(_UnimplementedProvider):
     name = "openai"
 
+    def __init__(self, *, api_key: str | None = None, model: str | None = None) -> None:
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
-class AnthropicProvider(_UnimplementedProvider):
-    name = "anthropic"
-
-
-class GeminiProvider(_UnimplementedProvider):
-    name = "gemini"
+    def investigate(self, incident: Mapping[str, Any]) -> AgentPrediction:
+        if not self.api_key:
+            raise RuntimeError(
+                "OPENAI_API_KEY is not set. Use MockProvider for offline runs."
+            )
+        raise NotImplementedError(
+            "OpenAIProvider adapter is not implemented yet "
+            "(see GitHub issue #11). Use MockProvider for offline evaluation."
+        )

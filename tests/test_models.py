@@ -43,11 +43,13 @@ def test_get_provider_mock() -> None:
     assert isinstance(provider, MockProvider)
 
 
-def test_cloud_stubs_not_implemented() -> None:
+def test_cloud_stubs_require_keys_or_are_unimplemented() -> None:
     incident = load_incident(EXAMPLE)
     for cls in (OpenAIProvider, AnthropicProvider, GeminiProvider):
+        with pytest.raises(RuntimeError):
+            cls(api_key=None).investigate(incident)
         with pytest.raises(NotImplementedError):
-            cls().investigate(incident)
+            cls(api_key="test-key").investigate(incident)
 
 
 def test_fixed_mode_requires_prediction() -> None:

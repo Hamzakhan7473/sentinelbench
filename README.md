@@ -44,8 +44,11 @@ Copy `.env.example` to `.env` before wiring real model providers.
 ## Documentation
 
 - [Architecture](docs/architecture.md)
-- [Methodology](docs/methodology.md)
+- [Methodology / scoring rubric](docs/methodology.md)
 - [Threat model](docs/threat-model.md)
+- [Example investigation](docs/example-investigation.md)
+- [Demo checklist](docs/demo.md)
+- [Technical report (draft)](docs/technical-report.md)
 - [Data guidelines](data/README.md)
 - [Incident schema](data/schemas/README.md)
 

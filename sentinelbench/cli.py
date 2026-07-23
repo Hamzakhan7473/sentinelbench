@@ -55,7 +55,7 @@ def main(argv: list[str] | None = None) -> int:
 
     provider = get_provider(args.provider, mode=args.mode)
     results = evaluate_incidents(incidents, provider)
-    path = write_report(results, output_path=args.output)
+    path = write_report(results, output_path=args.output, incidents=incidents)
     overall = sum(r.to_dict()["overall_score"] for r in results) / len(results)
     print(f"Evaluated {len(results)} incident(s) with provider={provider.name}")
     print(f"Overall score: {overall:.3f}")

@@ -16,7 +16,11 @@ def main() -> None:
     incident = load_incident(EXAMPLE)
     provider = MockProvider(mode="oracle")
     result = evaluate_incident(incident, provider)
-    report_path = write_report([result], output_path=ROOT / "results" / "example-mock.json")
+    report_path = write_report(
+        [result],
+        output_path=ROOT / "results" / "example-mock.json",
+        incidents=[incident],
+    )
     print(f"incident_id={result.incident_id}")
     for score in result.scores:
         print(f"  {score.name}: {score.score:.3f}")

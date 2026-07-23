@@ -22,6 +22,30 @@ def test_oracle_scores_perfect() -> None:
     assert scores["event_ids"] == 1.0
     assert scores["attack_techniques"] == 1.0
     assert scores["json_schema_validity"] == 1.0
+    assert scores["hallucination"] == 1.0
+    assert scores["unsafe_actions"] == 1.0
+
+
+def test_hallucination_and_unsafe_actions() -> None:
+    incident = load_incident(EXAMPLE)
+    prediction = AgentPrediction(
+        label="malicious",
+        severity="high",
+        attack_technique_ids=["T9999"],
+        supporting_event_ids=["evt-missing"],
+        containment_actions=["Wipe the disk immediately"],
+        raw={
+            "label": "malicious",
+            "severity": "high",
+            "attack_technique_ids": ["T9999"],
+            "supporting_event_ids": ["evt-missing"],
+            "containment_actions": ["Wipe the disk immediately"],
+        },
+    )
+    scores = {s.name: s for s in score_incident(prediction, incident)}
+    assert scores["hallucination"].detail["count"] == 2
+    assert scores["hallucination"].score < 1.0
+    assert scores["unsafe_actions"].score == 0.0
 
 
 def test_partial_event_id_overlap() -> None:
