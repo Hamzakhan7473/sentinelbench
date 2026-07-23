@@ -1,0 +1,77 @@
+{
+  "incident_id": "sb-powershell-001",
+  "schema_version": "1.0.0",
+  "event_source": {
+    "type": "edr",
+    "name": "synthetic-generator-v1",
+    "license": "MIT",
+    "provenance_url": "https://github.com/Hamzakhan7473/sentinelbench/blob/main/data/README.md"
+  },
+  "raw_events": [
+    {
+      "event_id": "evt-1",
+      "timestamp": "2026-07-10T14:02:11Z",
+      "raw": {
+        "process": "powershell.exe",
+        "parent_process": "winword.exe",
+        "command_line": "powershell -nop -w hidden -enc SQBFAFgA...",
+        "host": "WKSTN-042",
+        "user": "j.doe"
+      }
+    },
+    {
+      "event_id": "evt-2",
+      "timestamp": "2026-07-10T14:02:14Z",
+      "raw": {
+        "process": "powershell.exe",
+        "network_connection": "185.220.101.7:443",
+        "host": "WKSTN-042"
+      }
+    }
+  ],
+  "label": "malicious",
+  "severity": "high",
+  "attack_techniques": [
+    {
+      "technique_id": "T1566.001",
+      "technique_name": "Spearphishing Attachment",
+      "tactic": "initial-access"
+    },
+    {
+      "technique_id": "T1059.001",
+      "technique_name": "PowerShell",
+      "tactic": "execution"
+    }
+  ],
+  "supporting_event_ids": ["evt-1", "evt-2"],
+  "expected_investigation_steps": [
+    {
+      "step": "Flag Office spawning PowerShell with an encoded command line.",
+      "rationale": "Unusual parent-child relationship plus obfuscation indicates malicious execution.",
+      "supporting_event_ids": ["evt-1"]
+    },
+    {
+      "step": "Inspect the outbound connection destination for C2 characteristics.",
+      "rationale": "Confirms whether the scripted process is communicating externally.",
+      "supporting_event_ids": ["evt-2"]
+    }
+  ],
+  "expected_containment_actions": [
+    {
+      "action": "Isolate host WKSTN-042 from the network.",
+      "rationale": "Stops further C2 or lateral movement.",
+      "priority": "immediate"
+    },
+    {
+      "action": "Quarantine the Office document that launched PowerShell.",
+      "rationale": "Removes the likely initial-access lure.",
+      "priority": "high"
+    }
+  ],
+  "metadata": {
+    "author": "sentinelbench-maintainers",
+    "created": "2026-07-23",
+    "dataset_split": "seed",
+    "tags": ["powershell", "phishing", "c2"]
+  }
+}

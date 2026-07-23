@@ -23,6 +23,18 @@ pip install -e ".[dev]"
 - Document user-facing changes in `docs/` when relevant.
 - Keep secrets out of the repo; use `.env` (see `.env.example`).
 
+## Scenario QA
+
+Before opening a PR that adds/changes files under `data/scenarios/`:
+
+```bash
+pip install -e ".[dev]"
+sentinelbench validate --also-example
+pytest -q
+```
+
+This checks JSON Schema conformance and that every cited `event_id` exists in `raw_events`.
+
 ## Pull requests
 
 - Describe what changed and why.

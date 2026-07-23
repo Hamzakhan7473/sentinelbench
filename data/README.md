@@ -20,8 +20,26 @@ Datasets will **not** include:
 
 | Path | Purpose |
 |------|---------|
-| `scenarios/` | Scenario definitions and fixtures (added when approved) |
-| `schemas/` | JSON/YAML schemas for scenario and result formats |
+| `scenarios/` | Synthetic seed incidents (JSON) for offline eval |
+| `schemas/` | JSON Schemas for incident records |
+
+## Seed scenarios
+
+Initial synthetic pack (MIT-licensed, generated for SentinelBench):
+
+| File | Category |
+|------|----------|
+| `scenarios/sb-bruteforce-001.json` | Brute-force authentication |
+| `scenarios/sb-powershell-001.json` | Suspicious PowerShell |
+| `scenarios/sb-credump-001.json` | Credential dumping |
+| `scenarios/sb-privesc-001.json` | Privilege escalation |
+| `scenarios/sb-benign-admin-001.json` | Benign administrator activity |
+
+Validate with:
+
+```bash
+sentinelbench validate --also-example
+```
 
 ## Adding data
 
@@ -30,5 +48,4 @@ Before adding any dataset:
 1. Confirm public availability and license compatibility.
 2. Document provenance, version, and citation in this README or a per-dataset note.
 3. Prefer references/download scripts over committing large binary blobs when appropriate.
-
-Until then, `scenarios/` and `schemas/` remain empty placeholders.
+4. Run `sentinelbench validate` so schema + event-id references pass CI.

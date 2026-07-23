@@ -1,0 +1,74 @@
+{
+  "incident_id": "sb-benign-admin-001",
+  "schema_version": "1.0.0",
+  "event_source": {
+    "type": "endpoint_log",
+    "name": "synthetic-generator-v1",
+    "license": "MIT",
+    "provenance_url": "https://github.com/Hamzakhan7473/sentinelbench/blob/main/data/README.md"
+  },
+  "raw_events": [
+    {
+      "event_id": "evt-1",
+      "timestamp": "2026-07-20T13:00:01Z",
+      "raw": {
+        "event": "process_create",
+        "process": "powershell.exe",
+        "command_line": "powershell.exe -File C:\\Scripts\\Approved\\patch_inventory.ps1",
+        "user": "admin.ops",
+        "parent_process": "explorer.exe",
+        "host": "ADM-JUMP-01",
+        "change_ticket": "CHG-10422"
+      }
+    },
+    {
+      "event_id": "evt-2",
+      "timestamp": "2026-07-20T13:00:18Z",
+      "raw": {
+        "event": "network_connection",
+        "process": "powershell.exe",
+        "dest": "wsus.corp.local:8531",
+        "host": "ADM-JUMP-01",
+        "user": "admin.ops"
+      }
+    },
+    {
+      "event_id": "evt-3",
+      "timestamp": "2026-07-20T13:01:02Z",
+      "raw": {
+        "event": "file_write",
+        "path": "C:\\Scripts\\Approved\\logs\\patch_inventory_2026-07-20.log",
+        "user": "admin.ops",
+        "host": "ADM-JUMP-01"
+      }
+    }
+  ],
+  "label": "benign",
+  "severity": "informational",
+  "attack_techniques": [],
+  "supporting_event_ids": ["evt-1", "evt-2", "evt-3"],
+  "expected_investigation_steps": [
+    {
+      "step": "Correlate PowerShell execution with approved script path and change ticket CHG-10422.",
+      "rationale": "Administrators often run scripted maintenance that looks noisy without context.",
+      "supporting_event_ids": ["evt-1"]
+    },
+    {
+      "step": "Verify destination is the internal WSUS endpoint, not an unknown external IP.",
+      "rationale": "Internal patch service traffic supports a benign classification.",
+      "supporting_event_ids": ["evt-2"]
+    },
+    {
+      "step": "Confirm expected log output under the approved scripts directory.",
+      "rationale": "Completes the evidence trail for routine admin activity.",
+      "supporting_event_ids": ["evt-3"]
+    }
+  ],
+  "expected_containment_actions": [],
+  "metadata": {
+    "author": "sentinelbench-maintainers",
+    "created": "2026-07-23",
+    "dataset_split": "seed",
+    "tags": ["benign", "administrator-activity"]
+  }
+}

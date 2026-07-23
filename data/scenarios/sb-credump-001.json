@@ -1,0 +1,81 @@
+{
+  "incident_id": "sb-credump-001",
+  "schema_version": "1.0.0",
+  "event_source": {
+    "type": "edr",
+    "name": "synthetic-generator-v1",
+    "license": "MIT",
+    "provenance_url": "https://github.com/Hamzakhan7473/sentinelbench/blob/main/data/README.md"
+  },
+  "raw_events": [
+    {
+      "event_id": "evt-1",
+      "timestamp": "2026-07-15T18:41:03Z",
+      "raw": {
+        "process": "procdump.exe",
+        "command_line": "procdump.exe -ma lsass.exe C:\\Users\\Public\\lsass.dmp",
+        "host": "SRV-APP-07",
+        "user": "svc.backup"
+      }
+    },
+    {
+      "event_id": "evt-2",
+      "timestamp": "2026-07-15T18:41:09Z",
+      "raw": {
+        "process": "procdump.exe",
+        "target": "lsass.exe",
+        "access": "PROCESS_VM_READ",
+        "host": "SRV-APP-07"
+      }
+    },
+    {
+      "event_id": "evt-3",
+      "timestamp": "2026-07-15T18:41:20Z",
+      "raw": {
+        "file_created": "C:\\Users\\Public\\lsass.dmp",
+        "size_mb": 48,
+        "host": "SRV-APP-07"
+      }
+    }
+  ],
+  "label": "malicious",
+  "severity": "critical",
+  "attack_techniques": [
+    {
+      "technique_id": "T1003.001",
+      "technique_name": "LSASS Memory",
+      "tactic": "credential-access"
+    }
+  ],
+  "supporting_event_ids": ["evt-1", "evt-2", "evt-3"],
+  "expected_investigation_steps": [
+    {
+      "step": "Identify LSASS memory dump via procdump command line.",
+      "rationale": "Dumping LSASS is a high-signal credential theft technique.",
+      "supporting_event_ids": ["evt-1", "evt-2"]
+    },
+    {
+      "step": "Confirm dump file creation under a world-readable path.",
+      "rationale": "Shows successful credential material collection.",
+      "supporting_event_ids": ["evt-3"]
+    }
+  ],
+  "expected_containment_actions": [
+    {
+      "action": "Isolate SRV-APP-07 and kill the dumping process.",
+      "rationale": "Stops further credential theft from the host.",
+      "priority": "immediate"
+    },
+    {
+      "action": "Delete C:\\Users\\Public\\lsass.dmp and rotate local/admin credentials.",
+      "rationale": "Removes stolen material and invalidates potentially exposed secrets.",
+      "priority": "immediate"
+    }
+  ],
+  "metadata": {
+    "author": "sentinelbench-maintainers",
+    "created": "2026-07-23",
+    "dataset_split": "seed",
+    "tags": ["credential-dumping", "lsass"]
+  }
+}

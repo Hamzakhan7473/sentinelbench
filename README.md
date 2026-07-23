@@ -35,8 +35,14 @@ pytest
 # Evaluate the example incident
 python examples/run_mock_eval.py
 
-# Or via CLI
-sentinelbench --incident data/schemas/examples/incident.example.json --provider mock
+# Validate seed scenarios (schema + event-id references)
+sentinelbench validate --also-example
+
+# Run mock eval over all scenarios
+sentinelbench run --provider mock --mode oracle
+
+# Or a single incident
+sentinelbench run --incident data/schemas/examples/incident.example.json
 ```
 
 Copy `.env.example` to `.env` before wiring real model providers.

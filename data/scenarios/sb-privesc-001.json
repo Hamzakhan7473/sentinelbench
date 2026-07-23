@@ -1,0 +1,90 @@
+{
+  "incident_id": "sb-privesc-001",
+  "schema_version": "1.0.0",
+  "event_source": {
+    "type": "endpoint_log",
+    "name": "synthetic-generator-v1",
+    "license": "MIT",
+    "provenance_url": "https://github.com/Hamzakhan7473/sentinelbench/blob/main/data/README.md"
+  },
+  "raw_events": [
+    {
+      "event_id": "evt-1",
+      "timestamp": "2026-07-18T11:05:44Z",
+      "raw": {
+        "event": "process_create",
+        "process": "cmd.exe",
+        "command_line": "cmd.exe /c net localgroup administrators attacker /add",
+        "user": "j.contractor",
+        "host": "WKSTN-118",
+        "integrity": "medium"
+      }
+    },
+    {
+      "event_id": "evt-2",
+      "timestamp": "2026-07-18T11:05:45Z",
+      "raw": {
+        "event": "group_change",
+        "group": "Administrators",
+        "member_added": "attacker",
+        "host": "WKSTN-118"
+      }
+    },
+    {
+      "event_id": "evt-3",
+      "timestamp": "2026-07-18T11:06:02Z",
+      "raw": {
+        "event": "process_create",
+        "process": "powershell.exe",
+        "user": "attacker",
+        "integrity": "high",
+        "host": "WKSTN-118"
+      }
+    }
+  ],
+  "label": "malicious",
+  "severity": "high",
+  "attack_techniques": [
+    {
+      "technique_id": "T1098",
+      "technique_name": "Account Manipulation",
+      "tactic": "persistence"
+    },
+    {
+      "technique_id": "T1078.003",
+      "technique_name": "Local Accounts",
+      "tactic": "privilege-escalation"
+    }
+  ],
+  "supporting_event_ids": ["evt-1", "evt-2", "evt-3"],
+  "expected_investigation_steps": [
+    {
+      "step": "Review the local Administrators group modification command.",
+      "rationale": "Adding an unexpected local admin is a common privilege-escalation step.",
+      "supporting_event_ids": ["evt-1", "evt-2"]
+    },
+    {
+      "step": "Confirm follow-on high-integrity execution as the new admin user.",
+      "rationale": "Shows the privilege change was successfully abused.",
+      "supporting_event_ids": ["evt-3"]
+    }
+  ],
+  "expected_containment_actions": [
+    {
+      "action": "Remove user 'attacker' from local Administrators on WKSTN-118.",
+      "rationale": "Revokes the escalated privilege.",
+      "priority": "immediate"
+    },
+    {
+      "action": "Disable j.contractor pending investigation and rotate related credentials.",
+      "rationale": "Contains the originating account used to escalate.",
+      "priority": "high"
+    }
+  ],
+  "metadata": {
+    "author": "sentinelbench-maintainers",
+    "created": "2026-07-23",
+    "dataset_split": "seed",
+    "tags": ["privilege-escalation"]
+  }
+}

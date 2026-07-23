@@ -1,0 +1,87 @@
+{
+  "incident_id": "sb-bruteforce-001",
+  "schema_version": "1.0.0",
+  "event_source": {
+    "type": "identity_provider",
+    "name": "synthetic-generator-v1",
+    "license": "MIT",
+    "provenance_url": "https://github.com/Hamzakhan7473/sentinelbench/blob/main/data/README.md"
+  },
+  "raw_events": [
+    {
+      "event_id": "evt-1",
+      "timestamp": "2026-07-12T09:14:01Z",
+      "raw": {
+        "event": "user.login.failure",
+        "user": "a.smith",
+        "src_ip": "203.0.113.44",
+        "reason": "invalid_password"
+      }
+    },
+    {
+      "event_id": "evt-2",
+      "timestamp": "2026-07-12T09:14:08Z",
+      "raw": {
+        "event": "user.login.failure",
+        "user": "a.smith",
+        "src_ip": "203.0.113.44",
+        "reason": "invalid_password"
+      }
+    },
+    {
+      "event_id": "evt-3",
+      "timestamp": "2026-07-12T09:14:22Z",
+      "raw": {
+        "event": "user.login.success",
+        "user": "a.smith",
+        "src_ip": "203.0.113.44",
+        "mfa": "bypassed"
+      }
+    }
+  ],
+  "label": "malicious",
+  "severity": "high",
+  "attack_techniques": [
+    {
+      "technique_id": "T1110.001",
+      "technique_name": "Password Guessing",
+      "tactic": "credential-access"
+    },
+    {
+      "technique_id": "T1078",
+      "technique_name": "Valid Accounts",
+      "tactic": "initial-access"
+    }
+  ],
+  "supporting_event_ids": ["evt-1", "evt-2", "evt-3"],
+  "expected_investigation_steps": [
+    {
+      "step": "Count failed logins for a.smith from 203.0.113.44 in a short window.",
+      "rationale": "Burst failures followed by success are a classic brute-force pattern.",
+      "supporting_event_ids": ["evt-1", "evt-2"]
+    },
+    {
+      "step": "Confirm the successful login and MFA bypass/absence after the failures.",
+      "rationale": "Successful access after guessing elevates severity and impact.",
+      "supporting_event_ids": ["evt-3"]
+    }
+  ],
+  "expected_containment_actions": [
+    {
+      "action": "Lock account a.smith and force password reset.",
+      "rationale": "Stops continued credential attacks against the compromised identity.",
+      "priority": "immediate"
+    },
+    {
+      "action": "Block source IP 203.0.113.44 at the identity edge.",
+      "rationale": "Removes the attacker foothold from the observed source.",
+      "priority": "high"
+    }
+  ],
+  "metadata": {
+    "author": "sentinelbench-maintainers",
+    "created": "2026-07-23",
+    "dataset_split": "seed",
+    "tags": ["brute-force", "authentication"]
+  }
+}
