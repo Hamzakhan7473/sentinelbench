@@ -49,6 +49,9 @@ Copy `.env.example` to `.env` before wiring real model providers.
 
 ## Documentation
 
+- [Quickstart](docs/quickstart.md)
+- [Product vision](docs/product-vision.md)
+- [Roadmap](docs/roadmap.md)
 - [Architecture](docs/architecture.md)
 - [Methodology / scoring rubric](docs/methodology.md)
 - [Threat model](docs/threat-model.md)
